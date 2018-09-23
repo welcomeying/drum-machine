@@ -1,0 +1,141 @@
+const data = [{
+	key: 'Q',
+  keyCode: 81,
+  url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3',
+  id: 'Heater-1'
+}, {
+  key: 'W',
+  keyCode: 87,
+  url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3',
+  id: 'Heater-2'
+}, {
+  key: 'E',
+  keyCode: 69,
+  url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3',
+  id: 'Heater-3'
+}, {
+  key: 'A',
+  keyCode: 65,
+  url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3',
+  id: 'Heater-4'
+}, {
+  key: 'S',
+  keyCode: 83,
+  url: 'https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3',
+  id: 'Open-H'
+}, {
+  key: 'D',
+  keyCode: 68,
+  url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3',
+  id: 'Heater-6'
+}, {
+  key: 'Z',
+  keyCode: 90,
+  url: 'https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3',
+  id: 'Kick-n-Hat'
+}, {
+  key: 'X',
+  keyCode: 88,
+  url: 'https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3',
+  id: 'Kick'
+}, {
+  key: 'C',
+  keyCode: 67,
+  url: 'https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3',
+  id: 'Closed-HH'
+}];
+
+class DrumPad extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+	componentDidMount() {
+    document.addEventListener("keydown", this.handleKeyPress);
+  }
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyPress);
+  }
+	handleKeyPress = (event) => {
+		if (event.keyCode === this.props.keyCode) {
+			this.playSound();
+		}
+	}
+	playSound = (event) => {
+		const sound = document.getElementById(this.props.keyTrigger);
+		sound.volume = this.props.volume / 50;
+		sound.play();
+		this.props.display(this.props.id);
+	}
+
+  render() {	
+    return (
+      <div className="drum-pad btn" id={this.props.id} onClick={this.playSound}>
+				<audio className="clip" id={this.props.keyTrigger}  src={this.props.url} />
+				<span className="text">{this.props.keyTrigger}</span>
+      </div>
+    );
+  }
+};
+
+class PadBank extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+	renderPad = (sound) => {
+		return (
+			<DrumPad
+				keyTrigger={sound.key}
+				keyCode={sound.keyCode}
+				url={sound.url}
+				id={sound.id}
+				volume={this.props.volume}
+				display={this.props.display} />
+		)
+	};
+  render() {	
+    return (
+			<div>
+				{this.props.data.map(this.renderPad)}
+      </div>
+    );
+  }
+};
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: data,
+			volume: "25",
+			playing: ""
+    };
+
+  }
+	nowPlaying = (id) => {
+    this.setState({playing: id})
+  };
+  handleChange= (event) => {
+    this.setState({volume: event.target.value});
+  };
+
+  render() {	
+		console.log(this.state.volume);
+    return (
+      <div id="drum-machine">
+				<input className="slider" id="volume" type="range" min="0" max="50" value={this.state.volume} 
+      onChange={this.handleChange}/>
+				<div id="display">
+					{this.state.playing}
+				</div>
+				<PadBank data={this.state.data} 
+					volume={this.state.volume} 
+					display={this.nowPlaying} />
+      </div>
+    );
+  }
+};
+
+
+ReactDOM.render(<App />, document.getElementById('app'));
+
+
